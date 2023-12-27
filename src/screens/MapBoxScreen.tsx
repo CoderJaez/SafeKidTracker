@@ -1,9 +1,13 @@
-import {View, StyleSheet, Alert} from 'react-native';
+import {View, StyleSheet, Alert, Image} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Mapbox from '@rnmapbox/maps';
 import {point, destination, Position, distance} from '@turf/turf';
 import {Text} from '@react-native-material/core';
-
+import BlynkService from '../services/BlynkService';
+import useCoordinates from '../store/Coordinates';
+import useUserStore from '../store/Settings';
+import Marker from '../components/Marker';
+import {marker_offline, marker_online} from '../constants/images';
 Mapbox.setAccessToken(
   'sk.eyJ1IjoiYWtpbmkiLCJhIjoiY2xxaHNvamVuMWl5YTJqbm1qazliMnk5ayJ9.Vg7mtEFcNALLqAWAa76ChQ',
 );
@@ -11,13 +15,28 @@ const MapBoxScreen: React.FC = () => {
   const [coordinates, setCoordinates] = useState<Position[]>([]);
   const [centerCoordinate, setCenterCoordinate] = useState([123.4365, 7.8249]);
   const [currentCoordinates, setCurrentCoordinates] = useState([0, 0]);
+  const {getCoordinates} = BlynkService;
+  const {position, setPosition} = useCoordinates();
+  const {user, boundary} = useUserStore();
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getCoordinates()
+        .then(res => {
+          setPosition([res.v1, res.v0]);
+        })
+        .catch(err => console.log(err));
+    }, 4000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
   const onRegionChangeComplete = (region: any) => {
-    const point2 = region.geometry.coordinates;
-    const point1 = point(centerCoordinate);
-    const dist = distance(point1, point2);
-    Alert.alert('Distance travel', dist.toString());
-    setCurrentCoordinates(point2);
+    // const point2 = region.geometry.coordinates;
+    // const point1 = point(centerCoordinate);
+    // const dist = distance(point1, point2);
+    // Alert.alert('Distance travel', dist.toString());
+    // setCurrentCoordinates(point2);
   };
 
   useEffect(() => {
@@ -25,12 +44,12 @@ const MapBoxScreen: React.FC = () => {
     let points: Position[] = [];
     let bearer = 15;
     for (let i = 0; i < 24; i++) {
-      const point2 = destination(point1, 4, bearer).geometry.coordinates;
+      const point2 = destination(point1, boundary, bearer).geometry.coordinates;
       points.push(point2);
       bearer += 15;
     }
     setCoordinates(points);
-  }, []);
+  }, [boundary]);
 
   return (
     <View style={styles.container}>
@@ -44,15 +63,16 @@ const MapBoxScreen: React.FC = () => {
           zoomLevel={12}
           animationMode="moveTo"
         />
-        <Mapbox.PointAnnotation id="marker" coordinate={centerCoordinate}>
-          <View />
-        </Mapbox.PointAnnotation>
-        <Mapbox.PointAnnotation id="marker" coordinate={[123.436033, 7.827058]}>
-          <View />
-        </Mapbox.PointAnnotation>
-        <Mapbox.PointAnnotation id="marker" coordinate={currentCoordinates}>
-          <View />
-        </Mapbox.PointAnnotation>
+
+        <Mapbox.MarkerView id="marker-1" coordinate={position}>
+          <Marker isDeviceOnline={user.isConnected} />
+          {/* <View>
+            
+            <Image
+              source={user.isConnected ? marker_online : marker_offline}
+            /> */}
+          {/* </View> */}
+        </Mapbox.MarkerView>
 
         <Mapbox.ShapeSource
           id="my-shape-id"
