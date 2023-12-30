@@ -6,24 +6,28 @@
  */
 
 import 'react-native-gesture-handler';
-import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  useColorScheme,
-  View,
-} from 'react-native';
+import React, {useEffect} from 'react';
+import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {NavigationContainer} from '@react-navigation/native';
 import StackNavigator from './src/navigators/StackNavigator';
 import DrawerNavigator from './src/navigators/DrawerNavigator';
+import BackgroundService from './src/services/BackgroundService';
+
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  useEffect(() => {
+    BackgroundService.start();
+
+    return () => {
+      BackgroundService.stop();
+    };
+  }, []);
 
   return (
     <SafeAreaView

@@ -2,12 +2,10 @@ import {View, StyleSheet, Alert, Image} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Mapbox from '@rnmapbox/maps';
 import {point, destination, Position, distance} from '@turf/turf';
-import {Text} from '@react-native-material/core';
 import BlynkService from '../services/BlynkService';
 import useCoordinates from '../store/Coordinates';
 import useUserStore from '../store/Settings';
 import Marker from '../components/Marker';
-import {marker_offline, marker_online} from '../constants/images';
 Mapbox.setAccessToken(
   'sk.eyJ1IjoiYWtpbmkiLCJhIjoiY2xxaHNvamVuMWl5YTJqbm1qazliMnk5ayJ9.Vg7mtEFcNALLqAWAa76ChQ',
 );
@@ -31,13 +29,13 @@ const MapBoxScreen: React.FC = () => {
       clearInterval(interval);
     };
   }, []);
-  const onRegionChangeComplete = (region: any) => {
-    // const point2 = region.geometry.coordinates;
-    // const point1 = point(centerCoordinate);
-    // const dist = distance(point1, point2);
-    // Alert.alert('Distance travel', dist.toString());
-    // setCurrentCoordinates(point2);
-  };
+  // const onRegionChangeComplete = (region: any) => {
+  //   // const point2 = region.geometry.coordinates;
+  //   // const point1 = point(centerCoordinate);
+  //   // const dist = distance(point1, point2);
+  //   // Alert.alert('Distance travel', dist.toString());
+  //   // setCurrentCoordinates(point2);
+  // };
 
   useEffect(() => {
     const point1 = point(centerCoordinate);
@@ -55,7 +53,6 @@ const MapBoxScreen: React.FC = () => {
     <View style={styles.container}>
       <Mapbox.MapView
         style={styles.map}
-        onPress={onRegionChangeComplete}
         zoomEnabled={true}
         styleURL="mapbox://styles/mapbox/streets-v12">
         <Mapbox.Camera
@@ -66,12 +63,6 @@ const MapBoxScreen: React.FC = () => {
 
         <Mapbox.MarkerView id="marker-1" coordinate={position}>
           <Marker isDeviceOnline={user.isConnected} />
-          {/* <View>
-            
-            <Image
-              source={user.isConnected ? marker_online : marker_offline}
-            /> */}
-          {/* </View> */}
         </Mapbox.MarkerView>
 
         <Mapbox.ShapeSource
