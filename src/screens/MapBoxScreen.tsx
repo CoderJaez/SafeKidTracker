@@ -12,18 +12,25 @@ Mapbox.setAccessToken(
 const MapBoxScreen: React.FC = () => {
   const [coordinates, setCoordinates] = useState<Position[]>([]);
   const [centerCoordinate, setCenterCoordinate] = useState([123.4365, 7.8249]);
-  const [currentCoordinates, setCurrentCoordinates] = useState([0, 0]);
-  const {getCoordinates} = BlynkService;
-  const {position, setPosition} = useCoordinates();
+  const {getCoordinates, isDeviceConnected} = BlynkService;
+  const {position, setPosition, deviceStatus, setDeviceStatus} =
+    useCoordinates();
   const {user, boundary} = useUserStore();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      getCoordinates()
-        .then(res => {
-          setPosition([res.v1, res.v0]);
-        })
-        .catch(err => console.log(err));
+    const interval = setInterval(async () => {
+      try {
+        getCoordinates()
+          .then(res => {
+            if (!(position[0] == res.v1 && position[1] == res.v0))
+              setPosition([res.v1, res.v0]);
+          })
+          .catch(err => console.log(err));
+        const status: boolean = await isDeviceConnected();
+        setDeviceStatus(status);
+      } catch (error) {
+        console.log('Error in getting coordinates and device status');
+      }
     }, 4000);
     return () => {
       clearInterval(interval);
@@ -62,7 +69,7 @@ const MapBoxScreen: React.FC = () => {
         />
 
         <Mapbox.MarkerView id="marker-1" coordinate={position}>
-          <Marker isDeviceOnline={user.isConnected} />
+          <Marker />
         </Mapbox.MarkerView>
 
         <Mapbox.ShapeSource

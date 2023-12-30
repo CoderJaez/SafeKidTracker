@@ -12,7 +12,6 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {NavigationContainer} from '@react-navigation/native';
 import StackNavigator from './src/navigators/StackNavigator';
 import DrawerNavigator from './src/navigators/DrawerNavigator';
-import BackgroundService from './src/services/BackgroundService';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -20,14 +19,6 @@ function App(): React.JSX.Element {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
-
-  useEffect(() => {
-    BackgroundService.start();
-
-    return () => {
-      BackgroundService.stop();
-    };
-  }, []);
 
   return (
     <SafeAreaView

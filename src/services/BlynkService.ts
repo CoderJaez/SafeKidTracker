@@ -20,7 +20,7 @@ const BlynkService = {
     });
   },
   isDeviceConnected: async () => {
-    return await new Promise<Boolean>((resolve, reject) => {
+    return await new Promise<boolean>((resolve, reject) => {
       axios
         .get(`isHardwareConnected?token=${token}`)
         .then(res => resolve(res.data))
