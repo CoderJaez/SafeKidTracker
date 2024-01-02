@@ -11,11 +11,10 @@ Mapbox.setAccessToken(
 );
 const MapBoxScreen: React.FC = () => {
   const [coordinates, setCoordinates] = useState<Position[]>([]);
-  const [centerCoordinate, setCenterCoordinate] = useState([123.4365, 7.8249]);
   const {getCoordinates, isDeviceConnected} = BlynkService;
   const {position, setPosition, deviceStatus, setDeviceStatus} =
     useCoordinates();
-  const {user, boundary} = useUserStore();
+  const {user, boundary, centerCoordinates} = useUserStore();
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -36,16 +35,9 @@ const MapBoxScreen: React.FC = () => {
       clearInterval(interval);
     };
   }, []);
-  // const onRegionChangeComplete = (region: any) => {
-  //   // const point2 = region.geometry.coordinates;
-  //   // const point1 = point(centerCoordinate);
-  //   // const dist = distance(point1, point2);
-  //   // Alert.alert('Distance travel', dist.toString());
-  //   // setCurrentCoordinates(point2);
-  // };
 
   useEffect(() => {
-    const point1 = point(centerCoordinate);
+    const point1 = point(centerCoordinates);
     let points: Position[] = [];
     let bearer = 15;
     for (let i = 0; i < 24; i++) {
@@ -54,7 +46,7 @@ const MapBoxScreen: React.FC = () => {
       bearer += 15;
     }
     setCoordinates(points);
-  }, [boundary]);
+  }, [boundary, centerCoordinates]);
 
   return (
     <View style={styles.container}>
@@ -63,8 +55,8 @@ const MapBoxScreen: React.FC = () => {
         zoomEnabled={true}
         styleURL="mapbox://styles/mapbox/streets-v12">
         <Mapbox.Camera
-          centerCoordinate={centerCoordinate}
-          zoomLevel={12}
+          centerCoordinate={centerCoordinates}
+          zoomLevel={15}
           animationMode="moveTo"
         />
 

@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface IUserState {
   user: User;
   boundary: number;
+  centerCoordinates: number[];
+  setCenterCoordinates: (coordinates: number[]) => void;
   setBoundary: (boundary: number) => void;
   setUser: (user: User) => void;
 }
@@ -18,9 +20,11 @@ const useUserStore = create<IUserState>()(
         contact_no: '',
         isConnected: false,
       },
+      centerCoordinates: [123.4365, 7.8249],
       boundary: 3,
-      setBoundary: (boundary: number) =>
-        set(state => ({boundary: boundary})),
+      setCenterCoordinates: (coordinates: number[]) =>
+        set(() => ({centerCoordinates: coordinates})),
+      setBoundary: (boundary: number) => set(state => ({boundary: boundary})),
       setUser: (user: User) => set(state => ({...state.user, user})),
     }),
     {

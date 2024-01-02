@@ -1,4 +1,10 @@
-import {View, StyleSheet, useWindowDimensions, Alert} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  useWindowDimensions,
+  Alert,
+  Modal,
+} from 'react-native';
 import React, {useState} from 'react';
 import {Button, TextInput, Text} from '@react-native-material/core';
 import useUserStore from '../store/Settings';
@@ -6,6 +12,7 @@ import {TabView, SceneMap} from 'react-native-tab-view';
 import {Formik} from 'formik';
 import {object, string, number} from 'yup';
 import {User, Map} from '../types';
+import MapModal from '../components/MapModal';
 
 const userSchema = object({
   fullname: string().required('Fullname is required'),
@@ -19,8 +26,8 @@ const boundarySchema = object({
 });
 
 const MapSetting: React.FC = () => {
-  const {boundary, setBoundary} = useUserStore();
-
+  const {boundary, setBoundary, centerCoordinates} = useUserStore();
+  const [modelVisible, setModalVisible] = useState(false);
   const initValue: Map = {
     boundary: boundary,
   };
@@ -34,6 +41,7 @@ const MapSetting: React.FC = () => {
   };
   return (
     <View style={styles.container}>
+      <MapModal modalVisible={modelVisible} setModalVisible={setModalVisible} />
       <Text variant="h6" style={{marginBottom: 10}}>
         Setup your map's boundaries in Pagadian
       </Text>
@@ -46,15 +54,13 @@ const MapSetting: React.FC = () => {
         initialValues={initValue}
         validationSchema={boundarySchema}
         onSubmit={onSubmitHandler}>
-        {({
-          handleChange,
-          values,
-          handleBlur,
-          handleSubmit,
-          errors,
-          isSubmitting,
-        }) => (
+        {({handleChange, values, handleBlur, handleSubmit, errors}) => (
           <>
+            <Button
+              title="Pin Location"
+              titleStyle={{fontSize: 11}}
+              onPress={() => setModalVisible(true)}
+            />
             <TextInput
               label="Boundary"
               value={values.boundary.toString()}
@@ -146,7 +152,6 @@ const renderScene = SceneMap({
   childSetting: ChildSetting,
   mapSetting: MapSetting,
 });
-
 
 const SettingScreen: React.FC = () => {
   const layout = useWindowDimensions();
