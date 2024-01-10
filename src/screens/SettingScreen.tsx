@@ -13,7 +13,7 @@ import {Formik} from 'formik';
 import {object, string, number} from 'yup';
 import {User, Map} from '../types';
 import MapModal from '../components/MapModal';
-
+import BlynkService from '../services/BlynkService';
 const userSchema = object({
   fullname: string().required('Fullname is required'),
   contact_no: string()
@@ -28,13 +28,17 @@ const boundarySchema = object({
 const MapSetting: React.FC = () => {
   const {boundary, setBoundary, centerCoordinates} = useUserStore();
   const [modelVisible, setModalVisible] = useState(false);
+  const {updatePerimeter} = BlynkService;
   const initValue: Map = {
     boundary: boundary,
   };
   const onSubmitHandler = async ({boundary}: Map) => {
     try {
-      setBoundary(boundary);
-      Alert.alert('Boundary setup', 'Success');
+      const result = await updatePerimeter(boundary);
+      if (result) {
+        setBoundary(boundary);
+        Alert.alert('Boundary setup', 'Success');
+      }
     } catch (error: any) {
       Alert.alert('Error', error.message);
     }

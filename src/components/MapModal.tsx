@@ -3,7 +3,7 @@ import React from 'react';
 import Mapbox from '@rnmapbox/maps';
 import useUserStore from '../store/Settings';
 import {Button} from '@react-native-material/core';
-
+import BlynkService from '../services/BlynkService';
 Mapbox.setAccessToken(
   'sk.eyJ1IjoiYWtpbmkiLCJhIjoiY2xxaHNvamVuMWl5YTJqbm1qazliMnk5ayJ9.Vg7mtEFcNALLqAWAa76ChQ',
 );
@@ -13,13 +13,17 @@ type PROPS = {
 };
 const MapModal: React.FC<PROPS> = ({modalVisible, setModalVisible}) => {
   const {centerCoordinates, setCenterCoordinates} = useUserStore();
-  const onRegionChangeComplete = (region: any) => {
+  const onRegionChangeComplete = async (region: any) => {
     // const point2 = region.geometry.coordinates;
     // const point1 = point(centerCoordinate);
     // const dist = distance(point1, point2);
     // Alert.alert('Distance travel', dist.toString());
-    setCenterCoordinates(region.geometry.coordinates);
-    Alert.alert('Pin location', 'Success!');
+    const coordinates = region.geometry.coordinates.join(',');
+    const result = await BlynkService.updateCenterCoordinates(coordinates);
+    if (result) {
+      setCenterCoordinates(region.geometry.coordinates);
+      Alert.alert('Pin location', 'Success!');
+    }
   };
   return (
     <Modal visible={modalVisible}>
